@@ -18,9 +18,17 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform DetectTransform;
     [SerializeField] Transform holdTransform;
     [SerializeField] int itemCount = 0;
+    [SerializeField] int itemPlatformCount = 0;
     [SerializeField] float itemDistanceBetween = 0.5f;
+    [SerializeField] float itemCubeDistanceBetween = 0.5f;
+
     [SerializeField] float DetectionRange = 1;
     [SerializeField] LayerMask Layer;
+    [SerializeField] float JumpPower;
+
+
+
+    [SerializeField] Transform sellTransform;
     Collider[] colliders;
     void Start()
     {
@@ -40,31 +48,46 @@ public class PlayerController : MonoBehaviour
         {
             if (hit.CompareTag("collectable"))
             {
-                Debug.Log(hit.name);
-                hit.tag = "collected"; //deydiyi objenin tagini deyismek
+
+                hit.tag = "collected";
                 hit.transform.parent = holdTransform;
 
-                // var seq = DOTween.Sequence();
 
-                // seq.Append(hit.transform.DOLocalJump(new Vector3(0,itemCount*itemDistanceBetween), 2, 1, 0.2f))
-                // .Join(hit.transform.DOScale(0.5f,0.2f));
-                // seq.AppendCallback(() => {hit.transform.localRotation= Quaternion.Euler(0,0,0);} );
-                // itemCount++;
-                
+
                 var seq = DOTween.Sequence();
 
-                seq.Append(hit.transform.DOLocalJump(new Vector3(0,itemCount*itemDistanceBetween), 2, 1, 0.2f))
-                .Insert(0,hit.transform.DOScale(1.25f,0.1f)) //obje goturende boyuyur
-                .Insert(0.1f,hit.transform.DOScale(0.3f,0.2f)); //obje boyuyenden sonra kicilir
-                seq.AppendCallback(() => {hit.transform.localRotation= Quaternion.Euler(0,0,0);} );
+                seq.Append(hit.transform.DOLocalJump(new Vector3(0, itemCount * itemDistanceBetween), 2, 1, 0.2f))
+                .Insert(0, hit.transform.DOScale(1.25f, 0.1f))
+                .Insert(0.1f, hit.transform.DOScale(0.3f, 0.2f));
+                seq.AppendCallback(() => { hit.transform.localRotation = Quaternion.Euler(0, 0, 0); });
                 itemCount++;
+
             }
+            if (hit.CompareTag("SellGround"))
+            {
+
+                foreach (Transform item in holdTransform)
+                {
+                    item.transform.parent = sellTransform;
+                    var seq = DOTween.Sequence();
+
+                    seq.Append(item.transform.DOLocalJump(new Vector3(0, itemPlatformCount * itemCubeDistanceBetween), JumpPower, 1, 0.2f))
+                    .Insert(0.2f, item.transform.DOScale(new Vector3(0.3f, 3f, 0.13f), 0.1f))
+                    .Insert(0.1f, item.transform.DOScale(new Vector3(0.13f, 2f, 0.13f), 0.2f));
+                    seq.AppendCallback(() => { item.transform.localRotation = Quaternion.Euler(0, 0, 0); });
+                    itemPlatformCount++;
+                    itemCount--;
+                }
+            }
+
+
+
         }
 
 
 
-
     }
+
 
 
 
